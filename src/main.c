@@ -8,6 +8,9 @@ GLfloat eyeX,eyeY,eyeZ = 0.0f;
 GLfloat centerX,centerY,centerZ = 0.0f;
 GLfloat upX,upY,upZ = 0.0f;
 
+GLfloat DOOR_WIDTH = 0.5f;
+GLfloat DOOR_HEIGHT = 0.5f;
+
 void init(void) 
 {
    glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -18,14 +21,40 @@ void init(void)
    eyeZ = 10;
 }
 
-void drawHouse(void){
-  glColor3f(1.0f, 1.0f, 1); 
-  glBegin(GL_QUADS); //cara frontal, blanco
-  glVertex3f(-1.0f, -1.0f, 1.0f);
-  glVertex3f( 1.0f, -1.0f, 1.0f);
-  glVertex3f( 1.0f, 1.0f, 1.0f);
-  glVertex3f(-1.0f, 1.0f, 1.0f);
+void drawHouseDoor(){    
+  glColor3f(170.0f/255, 84.0f/255, 56.0f/255); //coffee color
+  glBegin(GL_QUADS); 
+  glVertex3f(-DOOR_WIDTH/2, -1, 1.0f);
+  glVertex3f( DOOR_WIDTH/2, -1, 1.0f);
+  glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);
+  glVertex3f( -DOOR_WIDTH/2,-1 + DOOR_HEIGHT, 1.0f);
   glEnd();
+}
+
+void drawHouse(void){
+  
+  
+  /* Front of the house */
+  glColor3f(1.0f, 1.0f, 1);  
+  glBegin(GL_QUADS); //front, part 1, to the left of the door
+  glVertex3f(-1.0f, -1.0f, 1.0f);
+  glVertex3f(-1.0f, 1.0f, 1.0f);
+  glVertex3f(- DOOR_WIDTH/2, 1.0f, 1.0f);
+  glVertex3f(- DOOR_WIDTH/2, -1.0f, 1.0f);  
+  glEnd();
+  glBegin(GL_QUADS); //front, part 2, to the right of the door
+  glVertex3f(1.0f, -1.0f, 1.0f);
+  glVertex3f(1.0f, 1.0f, 1.0f);
+  glVertex3f(DOOR_WIDTH/2, 1.0f, 1.0f);
+  glVertex3f(DOOR_WIDTH/2, -1.0f, 1.0f);  
+  glEnd();
+  glBegin(GL_QUADS); //front, part 2, above the door
+  glVertex3f(-DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);
+  glVertex3f(-DOOR_WIDTH/2, 1, 1.0f);
+  glVertex3f( DOOR_WIDTH/2, 1, 1.0f);
+  glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);  
+  glEnd();
+
   glColor3f(1.0f, 1.0f, 0.0f); 
   glBegin(GL_QUADS); //cara trasera, amarillo
   glVertex3f( 1.0f, -1.0f, -1.0f);
@@ -60,8 +89,9 @@ void drawHouse(void){
   glVertex3f( 1.0f, -1.0f, 1.0f);
   glVertex3f(-1.0f, -1.0f, 1.0f);
   glVertex3f(-1.0f, -1.0f, -1.0f);
-  glEnd();
-  glColor3f(1.0f, 1.0f, 1.0f);
+  glEnd(); 
+
+  drawHouseDoor();
 }
 
 void display(void)
@@ -80,7 +110,7 @@ void display(void)
   //glutWireSphere(1.0f, 25, 25);
   anguloEsfera += 0.05f;
   
-  drawHouse();
+  drawHouse();  
        
   glFlush ();
   glutSwapBuffers();
