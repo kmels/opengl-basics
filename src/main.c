@@ -4,11 +4,18 @@
 GLfloat anguloEsfera = 0.0f;
 GLfloat anguloPerspectiva = 60.0f;
 
+GLfloat eyeX,eyeY,eyeZ = 0.0f;
+GLfloat centerX,centerY,centerZ = 0.0f;
+GLfloat upX,upY,upZ = 0.0f;
+
 void init(void) 
 {
    glClearColor (0.0, 0.0, 0.0, 0.0);
    glShadeModel (GL_SMOOTH);
    glEnable(GL_DEPTH_TEST);
+   
+   upY = 1.0;   
+   eyeZ = 10;
 }
 
 void drawHouse(void){
@@ -65,10 +72,9 @@ void display(void)
   glColor3f (1.0, 1.0, 1.0);
   glLoadIdentity ();             /* clear the matrix */
   /* viewing transformation  */
-  gluLookAt (0.0, 0.0, 10.0, 0.0, 0, 0.0, 0.0, 1.0, 0.0);
+  gluLookAt (eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
   
   //glScalef (1.0, 2.0, 1.0);      /* modeling transformation */ 
-  glutWireCube (1.0);   
   //glTranslatef(0,0,0);
   glRotatef(anguloEsfera, 0.0f, 1.0f, 0.0f);
   //glutWireSphere(1.0f, 25, 25);
@@ -94,19 +100,46 @@ void reshape (int w, int h)
 void keyboard(unsigned char key, int x, int y)
 {
    switch (key) {
-     case 'i':
-      anguloPerspectiva += 3.0f;
-      if (anguloPerspectiva > 359)
-	anguloPerspectiva = 0;
-      break;
-    case 'd':
-      anguloPerspectiva -= 3.0f;
-      if (anguloPerspectiva > 359)
-	anguloPerspectiva = 0;
-      break;
-      case 27:
-         exit(0);
-         break;
+   case '8':{ //up camera
+     eyeY += 0.5;
+     upY += 0.5;
+     centerY += 0.5;     
+   } break;
+   case '2':{ //down camera
+     eyeY -= 0.5;
+     centerY -= 0.5;
+   } break;
+   case '4':{ //left camera
+     eyeX -= 0.5;
+     upX -= 0.5;
+     centerX -= 0.5;
+   } break;
+   case '5':{ //zoom
+     eyeZ -= 0.5;
+     centerZ -= 0.5;
+   } break;
+   case '0':{ //unzoom
+     eyeZ += 0.5;
+     centerZ += 0.5;
+   } break;
+   case '6':{ //right camera
+     eyeX += 0.5;
+     upX += 0.5;
+     centerX += 0.5;
+   } break;
+   case 'i':
+     anguloPerspectiva += 3.0f;
+     if (anguloPerspectiva > 359)
+       anguloPerspectiva = 0;
+     break;
+   case 'd':
+     anguloPerspectiva -= 3.0f;
+     if (anguloPerspectiva > 359)
+       anguloPerspectiva = 0;
+     break;
+   case 27:
+     exit(0);
+     break;
    }
 }
 
