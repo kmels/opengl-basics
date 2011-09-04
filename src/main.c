@@ -110,7 +110,7 @@ void display(void)
   //glutWireSphere(1.0f, 25, 25);
   anguloEsfera += 0.05f;
   
-  drawHouse();  
+  drawHouse();
        
   glFlush ();
   glutSwapBuffers();
@@ -141,7 +141,6 @@ void keyboard(unsigned char key, int x, int y)
    } break;
    case '4':{ //left camera
      eyeX -= 0.5;
-     upX -= 0.5;
      centerX -= 0.5;
    } break;
    case '5':{ //zoom
@@ -153,8 +152,7 @@ void keyboard(unsigned char key, int x, int y)
      centerZ += 0.5;
    } break;
    case '6':{ //right camera
-     eyeX += 0.5;
-     upX += 0.5;
+     eyeX += 0.5;     
      centerX += 0.5;
    } break;
    case 'i':
