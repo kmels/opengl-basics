@@ -1,7 +1,7 @@
 #include <GL/glut.h>
 #include <stdlib.h>
 
-GLfloat anguloEsfera = 0.0f;
+GLfloat houseAngle = 0.0f;
 GLfloat anguloPerspectiva = 60.0f;
 
 GLfloat eyeX,eyeY,eyeZ = 0.0f;
@@ -21,26 +21,28 @@ void init(void)
    eyeZ = 10;
 }
 
-void drawHouseDoor(){    
+void drawHouseDoor(){
+  glTranslatef(-DOOR_WIDTH/2, 0, 1);
+  glRotatef(houseAngle,0,1,0.0f);
+    
   glColor3f(170.0f/255, 84.0f/255, 56.0f/255); //coffee color
   glBegin(GL_QUADS); 
-  glVertex3f(-DOOR_WIDTH/2, -1, 1.0f);
-  glVertex3f( DOOR_WIDTH/2, -1, 1.0f);
-  glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);
-  glVertex3f( -DOOR_WIDTH/2,-1 + DOOR_HEIGHT, 1.0f);
+  glVertex3f(0, -1, 0.0f);
+  glVertex3f(DOOR_WIDTH, -1, 0.0f);
+  glVertex3f(DOOR_WIDTH, -1 + DOOR_HEIGHT, 0.0f);
+  glVertex3f(0,-1 + DOOR_HEIGHT, 0.0f);  
   glEnd();
+    
 }
 
-void drawHouse(void){
-  
-  
+void drawHouse(void){    
   /* Front of the house */
-  glColor3f(1.0f, 1.0f, 1);  
+  glColor3f(1.0f, 1.0f, 1);
   glBegin(GL_QUADS); //front, part 1, to the left of the door
   glVertex3f(-1.0f, -1.0f, 1.0f);
   glVertex3f(-1.0f, 1.0f, 1.0f);
   glVertex3f(- DOOR_WIDTH/2, 1.0f, 1.0f);
-  glVertex3f(- DOOR_WIDTH/2, -1.0f, 1.0f);  
+  glVertex3f(- DOOR_WIDTH/2, -1.0f, 1.0f);
   glEnd();
   glBegin(GL_QUADS); //front, part 2, to the right of the door
   glVertex3f(1.0f, -1.0f, 1.0f);
@@ -54,7 +56,7 @@ void drawHouse(void){
   glVertex3f( DOOR_WIDTH/2, 1, 1.0f);
   glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);  
   glEnd();
-
+  
   glColor3f(1.0f, 1.0f, 0.0f); 
   glBegin(GL_QUADS); //cara trasera, amarillo
   glVertex3f( 1.0f, -1.0f, -1.0f);
@@ -91,7 +93,9 @@ void drawHouse(void){
   glVertex3f(-1.0f, -1.0f, -1.0f);
   glEnd(); 
 
+  glPushMatrix();
   drawHouseDoor();
+  glPopMatrix();
 }
 
 void display(void)
@@ -99,16 +103,16 @@ void display(void)
   glClear (GL_COLOR_BUFFER_BIT);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-  glColor3f (1.0, 1.0, 1.0);
+  glColor3f (1.0, 1.0, 1.0);  
   glLoadIdentity ();             /* clear the matrix */
-  /* viewing transformation  */
   gluLookAt (eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
+  /* viewing transformation  */ 
   
   //glScalef (1.0, 2.0, 1.0);      /* modeling transformation */ 
   //glTranslatef(0,0,0);
-  glRotatef(anguloEsfera, 0.0f, 1.0f, 0.0f);
+  glRotatef(houseAngle, 0.0f, 1.0f, 0.0f);
   //glutWireSphere(1.0f, 25, 25);
-  anguloEsfera += 0.05f;
+  houseAngle += 0.05f;
   
   drawHouse();
        
