@@ -11,6 +11,30 @@ GLfloat upX,upY,upZ = 0.0f;
 GLfloat DOOR_WIDTH = 0.5f;
 GLfloat DOOR_HEIGHT = 0.5f;
 
+GLfloat rotate_angle_x = 0.0f;
+GLfloat rotate_angle_y = 0.0f;
+GLfloat rotate_angle_z = 0.0f;
+
+GLfloat translate_x = 0.0f;
+GLfloat translate_y = 0.0f;
+GLfloat translate_z = 0.0f;
+
+GLfloat scale_x = 1.0f;
+GLfloat scale_y = 1.0f;
+GLfloat scale_z = 1.0f;
+
+GLfloat translate_unit = 0.0f;
+
+int unit_sign = 1;
+
+typedef enum{
+  AXIS_Y,
+  AXIS_X,
+  AXIS_Z
+} AXIS_TYPE;
+
+AXIS_TYPE current_axis_type = -1;
+
 void init(void) 
 {
    glClearColor (0.0, 0.0, 0.0, 0.0);
@@ -108,11 +132,19 @@ void display(void)
   gluLookAt (eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
   /* viewing transformation  */ 
   
-  //glScalef (1.0, 2.0, 1.0);      /* modeling transformation */ 
+  
   //glTranslatef(0,0,0);
-  glRotatef(houseAngle, 0.0f, 1.0f, 0.0f);
-  //glutWireSphere(1.0f, 25, 25);
-  houseAngle += 0.05f;
+
+  //rotate? 
+  //printf("%f, %f, %f\n",translate_x,translate_y,translate_z);
+  glTranslatef(translate_x,translate_y,translate_z);
+  glScalef (scale_x, scale_y, scale_z);      /* modeling transformation */ 
+  glRotatef(rotate_angle_y, 0.0f, 1.0f, 0.0f);  
+  glRotatef(rotate_angle_x, 1.0f, 0.0f, 0.0f);
+  glRotatef(rotate_angle_z, 0.0f, 0.0f, 1.0f);
+
+//glutWireSphere(1.0f, 25, 25);
+  //houseAngle += 0.05f;
   
   drawHouse();
        
@@ -133,8 +165,10 @@ void reshape (int w, int h)
 
 void keyboard(unsigned char key, int x, int y)
 {
-   switch (key) {
-   case '8':{ //up camera
+  int mod = glutGetModifiers();
+  printf("key: %d\n",key);
+  switch (key) {
+  case '8':{ //up camera
      eyeY += 0.5;
      upY += 0.5;
      centerY += 0.5;     
@@ -159,20 +193,64 @@ void keyboard(unsigned char key, int x, int y)
      eyeX += 0.5;     
      centerX += 0.5;
    } break;
-   case 'i':
-     anguloPerspectiva += 3.0f;
-     if (anguloPerspectiva > 359)
-       anguloPerspectiva = 0;
-     break;
-   case 'd':
-     anguloPerspectiva -= 3.0f;
-     if (anguloPerspectiva > 359)
-       anguloPerspectiva = 0;
-     break;
-   case 27:
-     exit(0);
-     break;
-   }
+   case 'y': {
+     if(mod == GLUT_ACTIVE_ALT){ //rotate Y axis{
+       rotate_angle_y += unit_sign*0.5;
+       printf("ZZA\n");
+     }
+   }break;
+  case 'x': {
+    if(mod == GLUT_ACTIVE_ALT) //rotate X axis
+      rotate_angle_x += unit_sign*0.5;
+  }break;
+  case 'z': {
+    if(mod == GLUT_ACTIVE_ALT) //rotate Z axis
+      rotate_angle_z += unit_sign*0.5;
+  }break;
+  case 25: { //CTRL + Y
+    translate_y += unit_sign*0.5;
+  }break;
+  case 89: { //SHIFT + Y
+    scale_y += unit_sign*0.5;
+    if (scale_y + unit_sign*0.5 > 0)
+      scale_y += unit_sign*0.5;
+  }break;
+  case 24: { //CTRL + X
+    translate_x += unit_sign*0.5;
+  }break;
+  case 88: { //SHIFT + X
+    scale_x += unit_sign*0.5;
+    if (scale_x + unit_sign*0.5 > 0)
+      scale_x += unit_sign*0.5;
+  }break;
+  case 26: { //CTRL + Z
+    translate_z += unit_sign*0.5;
+  }break;
+  case 90: { //SHIFT + Z
+    scale_z += unit_sign*0.5;
+    if (scale_z + unit_sign*0.5 > 0)
+      scale_z += unit_sign*0.5;
+  }break;
+  case 'p': 
+    unit_sign = 1;
+    break;
+  case 'n': 
+    unit_sign = -1;
+    break;
+  case 'i':
+    anguloPerspectiva += 3.0f;
+    if (anguloPerspectiva > 359)
+      anguloPerspectiva = 0;
+    break;
+  case 'd':
+    anguloPerspectiva -= 3.0f;
+    if (anguloPerspectiva > 359)
+      anguloPerspectiva = 0;
+    break;
+  case 27:
+    exit(0);
+    break;
+  }
 }
 
 void idle(){
