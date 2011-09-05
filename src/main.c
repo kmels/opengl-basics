@@ -1,5 +1,6 @@
 #include <GL/glut.h>
 #include <stdlib.h>
+#include "ppmRead.h"
 
 GLfloat houseAngle = 0.0f;
 GLfloat doorhouseAngle = 0.0f;
@@ -27,7 +28,6 @@ GLfloat scale_z = 1.0f;
 GLfloat translate_unit = 0.0f;
 
 int unit_sign = 1;
-
 int door_is_opening,door_is_closing,door_is_open;
 
 typedef enum{
@@ -38,12 +38,56 @@ typedef enum{
 
 AXIS_TYPE current_axis_type = -1;
 
+GLuint house_wall_texture,house_floor_texture;
+GLsizei w,h;
+GLubyte *texpat;
+GLuint texName[2]; /* array to hold texture names */
+
+/**************************************************************************
+	Reads in a ppm file (name given in s) and loads it as a texture.
+	File should have height and width of a power of 2.  Returns 0
+	if error detected, otherwise returns 1
+****************************************************************************/
+int setTexture(char *s)
+{ 
+  FILE *fin;
+  if ( !(fin = fopen(s, "rb")) )  {  return 0; }
+  texpat = readPPM(fin, &w, &h); /* w and h must be a power of 2 */
+  if (texpat == NULL) return 0;
+  glPixelStorei(GL_UNPACK_ALIGNMENT,1);
+  // Uncomment one of the glTexEnvi lines below
+  // (GL_MODULATE is the default)
+  glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL);
+  //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+  //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_BLEND);
+  //glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+  glTexImage2D( GL_TEXTURE_2D, /* target */ 0, /* level */
+  		3, /* components */
+  		w, h, /* width, height */ 0, /* border */
+  		GL_RGB,  /* format */   GL_UNSIGNED_BYTE, /* type */
+  		texpat);
+  free(texpat); /* free the texture memory */
+  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+  glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+   return 1;
+}
+
 void init(void) 
 {
    glClearColor (0.0, 0.0, 0.0, 0.0);
    glShadeModel (GL_SMOOTH);
    glEnable(GL_DEPTH_TEST);
    
+   glGenTextures(2, texName); /* make 2 texture names */
+   glBindTexture(GL_TEXTURE_2D, texName[0]);
+   setTexture("textures/hwood.ppm");
+   glBindTexture(GL_TEXTURE_2D, texName[1]);
+   setTexture("textures/hfloor.ppm"); 
+   
+   glEnable(GL_TEXTURE_2D);
+   glShadeModel(GL_FLAT);
    upY = 1.0;   
    eyeZ = 10;
 }
@@ -86,61 +130,70 @@ void openDoor(){
 
 void drawHouse(void){    
   /* Front of the house */
-  glColor3f(1.0f, 1.0f, 1);
+  //glColor3f(0.9f, 0.5f, 0.1);
+
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
+
   glBegin(GL_QUADS); //front, part 1, to the left of the door
-  glVertex3f(-1.0f, -1.0f, 1.0f);
-  glVertex3f(-1.0f, 1.0f, 1.0f);
-  glVertex3f(- DOOR_WIDTH/2, 1.0f, 1.0f);
-  glVertex3f(- DOOR_WIDTH/2, -1.0f, 1.0f);
+  glTexCoord2f(0.0, 0.0); glVertex3f(-1.0f, -1.0f, 1.0f);
+  glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f, 1.0f, 1.0f);
+  glTexCoord2f(1.0, 1.0); glVertex3f(- DOOR_WIDTH/2, 1.0f, 1.0f);
+  glTexCoord2f(1.0, 0.0); glVertex3f(- DOOR_WIDTH/2, -1.0f, 1.0f);
   glEnd();
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //front, part 2, to the right of the door
-  glVertex3f(1.0f, -1.0f, 1.0f);
-  glVertex3f(1.0f, 1.0f, 1.0f);
-  glVertex3f(DOOR_WIDTH/2, 1.0f, 1.0f);
-  glVertex3f(DOOR_WIDTH/2, -1.0f, 1.0f);  
+  glTexCoord2f(0.0, 0.0); glVertex3f(1.0f, -1.0f, 1.0f);
+  glTexCoord2f(0.0, 1.0); glVertex3f(1.0f, 1.0f, 1.0f);
+  glTexCoord2f(1.0, 1.0); glVertex3f(DOOR_WIDTH/2, 1.0f, 1.0f);
+  glTexCoord2f(1.0, 0.0); glVertex3f(DOOR_WIDTH/2, -1.0f, 1.0f);  
   glEnd();
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //front, part 2, above the door
-  glVertex3f(-DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);
-  glVertex3f(-DOOR_WIDTH/2, 1, 1.0f);
-  glVertex3f( DOOR_WIDTH/2, 1, 1.0f);
-  glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);  
+  glTexCoord2f(0.0, 0.0); glVertex3f(-DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);
+  glTexCoord2f(0.0, 1.0); glVertex3f(-DOOR_WIDTH/2, 1, 1.0f);
+  glTexCoord2f(1.0, 1.0); glVertex3f( DOOR_WIDTH/2, 1, 1.0f);
+  glTexCoord2f(1.0, 0.0); glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);  
   glEnd();
-  
   glColor3f(1.0f, 1.0f, 0.0f); 
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara trasera, amarillo
-  glVertex3f( 1.0f, -1.0f, -1.0f);
-  glVertex3f(-1.0f, -1.0f, -1.0f);
-  glVertex3f(-1.0f, 1.0f, -1.0f);
-  glVertex3f( 1.0f, 1.0f, -1.0f);
+  glTexCoord2f(0.0, 0.0); glVertex3f( 1.0f, -1.0f, -1.0f);
+  glTexCoord2f(0.0, 1.0); glVertex3f(-1.0f, -1.0f, -1.0f);
+  glTexCoord2f(1.0, 1.0); glVertex3f(-1.0f, 1.0f, -1.0f);
+  glTexCoord2f(1.0, 0.0); glVertex3f( 1.0f, 1.0f, -1.0f);
   glEnd();
   glColor3f(0.0f, 1.0f, 0.0f);
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara lateral izq, verde
-  glVertex3f(-1.0f, -1.0f, -1.0f);
-  glVertex3f(-1.0f, -1.0f, 1.0f);
-  glVertex3f(-1.0f, 1.0f, 1.0f);
-  glVertex3f(-1.0f, 1.0f, -1.0f);
+  glTexCoord2f(0.0, 0.0);glVertex3f(-1.0f, -1.0f, -1.0f);
+  glTexCoord2f(0.0, 1.0);glVertex3f(-1.0f, -1.0f, 1.0f);
+  glTexCoord2f(1.0, 1.0);glVertex3f(-1.0f, 1.0f, 1.0f);
+  glTexCoord2f(1.0, 0.0);glVertex3f(-1.0f, 1.0f, -1.0f);
   glEnd();
   glColor3f(0.6f, 0.19f, 0.8f);
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara lateral dcha, morado
-  glVertex3f( 1.0f, -1.0f, 1.0f);
-  glVertex3f( 1.0f, -1.0f, -1.0f);
-  glVertex3f( 1.0f, 1.0f, -1.0f);
-  glVertex3f( 1.0f, 1.0f, 1.0f);
+  glTexCoord2f(0.0, 0.0);glVertex3f( 1.0f, -1.0f, 1.0f);
+  glTexCoord2f(0.0, 1.0);glVertex3f( 1.0f, -1.0f, -1.0f);
+  glTexCoord2f(1.0, 1.0);glVertex3f( 1.0f, 1.0f, -1.0f);
+  glTexCoord2f(1.0, 0.0);glVertex3f( 1.0f, 1.0f, 1.0f);
   glEnd();
   glColor3f(0.94f, 0.5f, 0.5f);
+  glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara arriba, rosado
-  glVertex3f(-1.0f, 1.0f, 1.0f);
-  glVertex3f( 1.0f, 1.0f, 1.0f);
-  glVertex3f( 1.0f, 1.0f, -1.0f);
-  glVertex3f(-1.0f, 1.0f, -1.0f);
+  glTexCoord2f(0.0, 0.0);glVertex3f(-1.0f, 1.0f, 1.0f);
+  glTexCoord2f(0.0, 1.0);glVertex3f( 1.0f, 1.0f, 1.0f);
+  glTexCoord2f(1.0, 1.0);glVertex3f( 1.0f, 1.0f, -1.0f);
+  glTexCoord2f(1.0, 0.0);glVertex3f(-1.0f, 1.0f, -1.0f);
   glEnd();
   glColor3f(0.5f, 1.0f, 0.83f);
+  glBindTexture(GL_TEXTURE_2D, texName[1]);
   glBegin(GL_QUADS); //cara abajo, celeste
-  glVertex3f( 1.0f, -1.0f, -1.0f);
-  glVertex3f( 1.0f, -1.0f, 1.0f);
-  glVertex3f(-1.0f, -1.0f, 1.0f);
-  glVertex3f(-1.0f, -1.0f, -1.0f);
-  glEnd(); 
+  glTexCoord2f(0.0, 0.0); glVertex3f( 1.0f, -1.0f, -1.0f);
+  glTexCoord2f(0.0, 1.0); glVertex3f( 1.0f, -1.0f, 1.0f);
+  glTexCoord2f(1.0, 1.0); glVertex3f(-1.0f, -1.0f, 1.0f);
+  glTexCoord2f(1.0, 0.0); glVertex3f(-1.0f, -1.0f, -1.0f);
+  glEnd();
 
   glPushMatrix();
   drawHouseDoor();
@@ -164,11 +217,12 @@ void display(void)
   //printf("%f, %f, %f\n",translate_x,translate_y,translate_z);
   glTranslatef(translate_x,translate_y,translate_z);
   glScalef (scale_x, scale_y, scale_z);      /* modeling transformation */ 
-  glRotatef(rotate_angle_y, 0.0f, 1.0f, 0.0f);  
+  
+  glRotatef(rotate_angle_y, 0.0f, 1.0f, 0.0f);
   glRotatef(rotate_angle_x, 1.0f, 0.0f, 0.0f);
   glRotatef(rotate_angle_z, 0.0f, 0.0f, 1.0f);
 
-//glutWireSphere(1.0f, 25, 25);
+  //glutWireSphere(1.0f, 25, 25);
   //houseAngle += 0.05f;
   
   drawHouse();

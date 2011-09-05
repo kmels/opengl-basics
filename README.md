@@ -5,6 +5,10 @@ An opengl + glut application that performs the following transformations to a po
  + rotate
  + translation
 
+Note
+------------
+This program uses a function coded by Michael Wainer for loading PPM's, fetched from http://www2.cs.siu.edu/~wainer/585S00/CUBE/cubedemo.html
+
 Dependencies
 ------------
  + Glut
