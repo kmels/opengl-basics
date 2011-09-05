@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 GLfloat houseAngle = 0.0f;
+GLfloat doorhouseAngle = 0.0f;
 GLfloat anguloPerspectiva = 60.0f;
 
 GLfloat eyeX,eyeY,eyeZ = 0.0f;
@@ -27,6 +28,8 @@ GLfloat translate_unit = 0.0f;
 
 int unit_sign = 1;
 
+int door_is_opening,door_is_closing,door_is_open;
+
 typedef enum{
   AXIS_Y,
   AXIS_X,
@@ -47,16 +50,38 @@ void init(void)
 
 void drawHouseDoor(){
   glTranslatef(-DOOR_WIDTH/2, 0, 1);
-  glRotatef(houseAngle,0,1,0.0f);
-    
+
+  glRotatef(doorhouseAngle,0,1,0.0f);
+  
+  if (door_is_opening){
+    if (doorhouseAngle < 50)
+      doorhouseAngle += 0.05;
+    else{
+      door_is_opening = 0;
+      door_is_open = 1;
+    }
+  }else{
+    if(door_is_closing){
+      if (doorhouseAngle > 0)
+	doorhouseAngle -= 0.05;
+      else{
+	door_is_closing = 0;
+	door_is_open = 0;
+      }
+    }
+  }
+
   glColor3f(170.0f/255, 84.0f/255, 56.0f/255); //coffee color
-  glBegin(GL_QUADS); 
+  glBegin(GL_QUADS);
   glVertex3f(0, -1, 0.0f);
   glVertex3f(DOOR_WIDTH, -1, 0.0f);
   glVertex3f(DOOR_WIDTH, -1 + DOOR_HEIGHT, 0.0f);
-  glVertex3f(0,-1 + DOOR_HEIGHT, 0.0f);  
+  glVertex3f(0,-1 + DOOR_HEIGHT, 0.0f);
   glEnd();
-    
+}
+
+void openDoor(){
+  door_is_opening = 1;
 }
 
 void drawHouse(void){    
@@ -231,6 +256,12 @@ void keyboard(unsigned char key, int x, int y)
     if (scale_z + unit_sign*0.5 > 0)
       scale_z += unit_sign*0.5;
   }break;
+  case 'o': 
+    if (!door_is_open)
+      door_is_opening = 1;
+    else
+      door_is_closing = 1;
+    break;
   case 'p': 
     unit_sign = 1;
     break;
