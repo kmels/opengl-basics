@@ -9,6 +9,7 @@ Dependencies
 ------------
  + Glut
  + OpenGL
+ + libsdl1.2-dev 
 
 How to compile and run
 ----------------------

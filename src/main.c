@@ -55,7 +55,7 @@ void drawHouseDoor(){
   
   if (door_is_opening){
     if (doorhouseAngle < 50)
-      doorhouseAngle += 0.05;
+      doorhouseAngle += 0.02;
     else{
       door_is_opening = 0;
       door_is_open = 1;
@@ -63,7 +63,7 @@ void drawHouseDoor(){
   }else{
     if(door_is_closing){
       if (doorhouseAngle > 0)
-	doorhouseAngle -= 0.05;
+	doorhouseAngle -= 0.02;
       else{
 	door_is_closing = 0;
 	door_is_open = 0;
@@ -191,7 +191,6 @@ void reshape (int w, int h)
 void keyboard(unsigned char key, int x, int y)
 {
   int mod = glutGetModifiers();
-  printf("key: %d\n",key);
   switch (key) {
   case '8':{ //up camera
      eyeY += 0.5;
@@ -221,7 +220,6 @@ void keyboard(unsigned char key, int x, int y)
    case 'y': {
      if(mod == GLUT_ACTIVE_ALT){ //rotate Y axis{
        rotate_angle_y += unit_sign*0.5;
-       printf("ZZA\n");
      }
    }break;
   case 'x': {
@@ -256,11 +254,13 @@ void keyboard(unsigned char key, int x, int y)
     if (scale_z + unit_sign*0.5 > 0)
       scale_z += unit_sign*0.5;
   }break;
-  case 'o': 
+  case 'o':{
+    system("aplay door.wav &");
     if (!door_is_open)
       door_is_opening = 1;
     else
       door_is_closing = 1;
+  }
     break;
   case 'p': 
     unit_sign = 1;
