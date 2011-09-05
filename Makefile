@@ -1,5 +1,5 @@
 CC     = gcc
-LIBS   = -lglut -l GLU -l GL -l SDL
+LIBS   = -lglut -l GLU -l GL
 
 opengl-basics:  clean ppmRead.o main.o
 	gcc $(CFLAGS) $(LIBS) -o opengl-basics src/main.o src/ppmRead.o
