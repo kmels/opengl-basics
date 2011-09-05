@@ -43,6 +43,8 @@ GLsizei w,h;
 GLubyte *texpat;
 GLuint texName[2]; /* array to hold texture names */
 
+int figure = 0;
+
 /**************************************************************************
 	Reads in a ppm file (name given in s) and loads it as a texture.
 	File should have height and width of a power of 2.  Returns 0
@@ -115,7 +117,9 @@ void drawHouseDoor(){
     }
   }
 
-  glColor3f(170.0f/255, 84.0f/255, 56.0f/255); //coffee color
+  //glColor3f(170.0f/255, 84.0f/255, 56.0f/255); //coffee color
+  //glColor3f(1.0f, 0.0f, 0.0f);
+
   glBegin(GL_QUADS);
   glVertex3f(0, -1, 0.0f);
   glVertex3f(DOOR_WIDTH, -1, 0.0f);
@@ -126,6 +130,18 @@ void drawHouseDoor(){
 
 void openDoor(){
   door_is_opening = 1;
+}
+
+void drawTree(void){
+  GLUquadric* quad = gluNewQuadric();  
+    
+  glRotatef(90, 1.0f, 0.0f, 0.0f);
+  //  glColor3f(0.0f, 0.0f, 1.0f);
+  glColor3f(1.0f, 0.0f, 0.0f);
+  gluCylinder(quad,0.5,0.5,3,25,25);//tronco
+  
+  glTranslatef(0,0,-1.5);
+  gluCylinder(quad,0,1,1.5,25,25);          
 }
 
 void drawHouse(void){    
@@ -154,7 +170,7 @@ void drawHouse(void){
   glTexCoord2f(1.0, 1.0); glVertex3f( DOOR_WIDTH/2, 1, 1.0f);
   glTexCoord2f(1.0, 0.0); glVertex3f( DOOR_WIDTH/2, -1 + DOOR_HEIGHT, 1.0f);  
   glEnd();
-  glColor3f(1.0f, 1.0f, 0.0f); 
+  //glColor3f(1.0f, 1.0f, 0.0f); 
   glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara trasera, amarillo
   glTexCoord2f(0.0, 0.0); glVertex3f( 1.0f, -1.0f, -1.0f);
@@ -162,7 +178,7 @@ void drawHouse(void){
   glTexCoord2f(1.0, 1.0); glVertex3f(-1.0f, 1.0f, -1.0f);
   glTexCoord2f(1.0, 0.0); glVertex3f( 1.0f, 1.0f, -1.0f);
   glEnd();
-  glColor3f(0.0f, 1.0f, 0.0f);
+  //glColor3f(0.0f, 1.0f, 0.0f);
   glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara lateral izq, verde
   glTexCoord2f(0.0, 0.0);glVertex3f(-1.0f, -1.0f, -1.0f);
@@ -170,7 +186,7 @@ void drawHouse(void){
   glTexCoord2f(1.0, 1.0);glVertex3f(-1.0f, 1.0f, 1.0f);
   glTexCoord2f(1.0, 0.0);glVertex3f(-1.0f, 1.0f, -1.0f);
   glEnd();
-  glColor3f(0.6f, 0.19f, 0.8f);
+  //glColor3f(0.6f, 0.19f, 0.8f);
   glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara lateral dcha, morado
   glTexCoord2f(0.0, 0.0);glVertex3f( 1.0f, -1.0f, 1.0f);
@@ -178,7 +194,7 @@ void drawHouse(void){
   glTexCoord2f(1.0, 1.0);glVertex3f( 1.0f, 1.0f, -1.0f);
   glTexCoord2f(1.0, 0.0);glVertex3f( 1.0f, 1.0f, 1.0f);
   glEnd();
-  glColor3f(0.94f, 0.5f, 0.5f);
+  //glColor3f(0.94f, 0.5f, 0.5f);
   glBindTexture(GL_TEXTURE_2D, texName[0]);
   glBegin(GL_QUADS); //cara arriba, rosado
   glTexCoord2f(0.0, 0.0);glVertex3f(-1.0f, 1.0f, 1.0f);
@@ -186,7 +202,7 @@ void drawHouse(void){
   glTexCoord2f(1.0, 1.0);glVertex3f( 1.0f, 1.0f, -1.0f);
   glTexCoord2f(1.0, 0.0);glVertex3f(-1.0f, 1.0f, -1.0f);
   glEnd();
-  glColor3f(0.5f, 1.0f, 0.83f);
+  //glColor3f(0.5f, 1.0f, 0.83f);
   glBindTexture(GL_TEXTURE_2D, texName[1]);
   glBegin(GL_QUADS); //cara abajo, celeste
   glTexCoord2f(0.0, 0.0); glVertex3f( 1.0f, -1.0f, -1.0f);
@@ -205,7 +221,7 @@ void display(void)
   glClear (GL_COLOR_BUFFER_BIT);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
   
-  glColor3f (1.0, 1.0, 1.0);  
+  //glColor3f (1.0, 1.0, 1.0);  
   glLoadIdentity ();             /* clear the matrix */
   gluLookAt (eyeX, eyeY, eyeZ, centerX, centerY, centerZ, upX, upY, upZ);
   /* viewing transformation  */ 
@@ -225,7 +241,10 @@ void display(void)
   //glutWireSphere(1.0f, 25, 25);
   //houseAngle += 0.05f;
   
-  drawHouse();
+  if (!figure)
+    drawHouse();
+  else
+    drawTree();
        
   glFlush ();
   glutSwapBuffers();
@@ -246,6 +265,12 @@ void keyboard(unsigned char key, int x, int y)
 {
   int mod = glutGetModifiers();
   switch (key) {
+  case 't':{ //up camera
+    if (!figure)
+      figure = 1;
+    else
+      figure = 0;
+  } break;
   case '8':{ //up camera
      eyeY += 0.5;
      upY += 0.5;
