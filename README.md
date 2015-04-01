@@ -1,5 +1,7 @@
 Description
 -----------
+
+[![Join the chat at https://gitter.im/kmels/opengl-basics](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/kmels/opengl-basics?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 An opengl + glut application that performs the following transformations to a polygon in 3D:
  + scaling
  + rotate
